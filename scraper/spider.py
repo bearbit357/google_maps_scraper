@@ -15,15 +15,27 @@ try:
     # options.add_argument('--headless=new')
     driver = webdriver.Chrome(options=options)
     driver.get(TARGET_URL)
-    print(f'Page title:{driver.title}')
     wait = WebDriverWait(driver,10)
 
     # find element
     search_ob = wait.until(EC.element_to_be_clickable((By.ID,'ucc-1')))
     search_ob.send_keys(query)
-    sleep(2)
     search_ob.send_keys(Keys.ENTER)
-    sleep(2)
+    
+    last_height = driver.execute_script("return document.body.scrollHeight")
 
+    while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+        sleep(2)
+
+        new_height = driver.execute_script("return document.body.scrollHeight")
+
+        if new_height == last_height:
+            break
+    
+        last_height = new_height
+    results = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'Nv2PK')))
+    for r in results:
+        print(r.text)
 finally:
     driver.quit()
